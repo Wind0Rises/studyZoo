@@ -1,5 +1,6 @@
 package com.liu.study.zookeeper.api;
 
+import com.liu.study.zookeeper.constant.CommonConstant;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;
@@ -23,17 +24,13 @@ public class ZookeeperApiClient {
     /** 信号量，阻塞程序执行，用于等待zookeeper连接成功，发送成功信号 */
     private CountDownLatch countDown = new CountDownLatch(1);
 
-    private static final String COMPANY_ZOO_CLUSTER_ADDRESS = "22.144.101.47:2181,22.144.101.47:2182,22.144.101.47:2183";
 
-    private static final String MYSELF_ZOO_SINGLETON_ADDRESS = "";
-
-    private static final String MYSELF_ZOO_CLUSTER_ADDRESS = "";
 
     private ZooKeeper zookeeper;
 
     public ZookeeperApiClient() {
         try {
-            zookeeper = new ZooKeeper(COMPANY_ZOO_CLUSTER_ADDRESS, 15000,  new Watcher() {
+            zookeeper = new ZooKeeper(CommonConstant.COMPANY_ZOO_CLUSTER_ADDRESS, 15000,  new Watcher() {
 
                @Override
                public void process(WatchedEvent watchedEvent) {
@@ -63,7 +60,7 @@ public class ZookeeperApiClient {
             e.printStackTrace();
         }
 
-        logger.info("创建zookeeper成功！连接地址为：{}", COMPANY_ZOO_CLUSTER_ADDRESS);
+        logger.info("创建zookeeper成功！连接地址为：{}", CommonConstant.COMPANY_ZOO_CLUSTER_ADDRESS);
     }
 
     public void close () throws InterruptedException {
