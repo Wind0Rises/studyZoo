@@ -1,6 +1,8 @@
 package com.liu.study.zookeeper.api;
 
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
@@ -27,10 +29,13 @@ public class ZookeeperApiTest {
 
         ZookeeperApiTest apiTest = new ZookeeperApiTest();
 
-        //apiTest.firstWatcherTest();
+        // apiTest.firstWatcherTest();
 
 
-        apiTest.secondWatcherTest();
+        // apiTest.secondWatcherTest();
+
+
+        apiTest.accessControllerList();
 
     }
 
@@ -111,5 +116,41 @@ public class ZookeeperApiTest {
 
         String nodeData12 = client1.getData(TOP_PATH, null, new Stat());
         logger.info("【【=====getData操作完成=====】】   1  结束  -- {}的数据为：{}", TOP_PATH, nodeData12);
+    }
+
+    /**
+     * acl
+     * @throws Exception
+     */
+    public void accessControllerList() throws Exception {
+        ZookeeperApiClient client = new ZookeeperApiClient();
+        client.addAuthInfo("digest", "username:password");
+
+        ZookeeperApiWatcher watcher = new ZookeeperApiWatcher();
+        Stat existsStat = client.exists("/auth", watcher);
+        logger.info("【【=====Exists【1】操作完成=====】】    结果为：{}", existsStat == null ? "/auth节点没有创建" : existsStat.toString());
+
+        // 没有创建节点
+        if (existsStat == null) {
+            /**
+             * OPEN_ACL_UNSAFE：这是一个完全开放的ACL，不安全。所有权限 world:anyone
+             * CREATOR_ALL_ACL：这个ACL赋予那些授权了的用户具备权限。所有权限 auth:
+             * READ_ACL_UNSAFE：这个ACL赋予用户读的权限，也就是获取数据之类的权限。 读权限。
+             */
+            client.addNode("/auth", "auth", ZooDefs.Ids.CREATOR_ALL_ACL, CreateMode.PERSISTENT);
+        }
+        client.close();
+
+        ZookeeperApiClient client2 = new ZookeeperApiClient();
+        client2.addAuthInfo("digest", "username:password");
+        String result2 = client2.getData("/auth", null, new Stat());
+        client2.close();
+        logger.info("【【=====   result2   =====】】    结果为：{}", result2);
+
+        /** 下面报错KeeperErrorCode = NoAuth for /auth */
+        ZookeeperApiClient client3 = new ZookeeperApiClient();
+        String result3 = client3.getData("/auth", null, new Stat());
+        logger.info("【【=====   result3   =====】】    结果为：{}", result3);
+
     }
 }

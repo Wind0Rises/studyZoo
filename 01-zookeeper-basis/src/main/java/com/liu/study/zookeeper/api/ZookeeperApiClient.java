@@ -150,4 +150,11 @@ public class ZookeeperApiClient {
     public void delete(String path, int version) throws KeeperException, InterruptedException {
         zookeeper.delete(path, version);
     }
+
+    /**
+     * 模式有：world、auth、digest、ip、super
+     */
+    public void addAuthInfo(String scheme, String auth) {
+        zookeeper.addAuthInfo(scheme, auth.getBytes());
+    }
 }
